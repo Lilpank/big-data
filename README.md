@@ -3,9 +3,8 @@ labs: https://git.ai.ssau.ru/tk/big_data/src/branch/master
 
 1. [Introduction to Apache Spark](https://github.com/Lilpank/big-data/blob/master/L1.ipynb)
 2. [Reports with Apache Spark](https://github.com/Lilpank/big-data/blob/master/L2.ipynb)
-
 3. [Stream processing with Apache Flink](https://github.com/Lilpank/big-data/blob/master/L3.md)
-
+4. [ZooKeeper](https://github.com/Lilpank/big-data/blob/master/L4.md)
 # Вопросы:
 Может ли пользователь использовать кэширование в DataFrame API?
 -
