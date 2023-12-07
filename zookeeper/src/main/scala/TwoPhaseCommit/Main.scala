@@ -9,14 +9,6 @@ object Main {
 
     val coordinator = Coordinator(hostPort, root, n_workers)
 
-    new Thread(
-      () => {
-        coordinator.run()
-      }
-    ).start()
-
-    println(coordinator.coordinatorPath)
-
     for (i <- 0 until n_workers) {
       workers(i) = new Thread(
         () => {

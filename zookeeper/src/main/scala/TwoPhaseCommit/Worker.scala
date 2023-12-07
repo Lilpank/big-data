@@ -2,33 +2,35 @@ package TwoPhaseCommit
 
 import org.apache.zookeeper._
 
-import java.util.concurrent.TimeUnit
-import scala.util.Random
-
-case class Worker(id:Integer, hostPort:String, root:String) extends Watcher {
+case class Worker(id: Integer, hostPort: String, root: String) extends Watcher {
   val zk = new ZooKeeper(hostPort, 3000, this)
   val workerPath: String = root + "/node_" + id.toString
+  val mutex = new Object()
+  var data: String = ""
+  zk.create(
+    workerPath,
+    "".getBytes(),
+    ZooDefs.Ids.OPEN_ACL_UNSAFE,
+    CreateMode.EPHEMERAL
+  )
 
   override def process(event: WatchedEvent): Unit = {
-
+    mutex.synchronized {
+      data = new String(zk.getData(s"$workerPath", this, null))
+      System.err.println("Пришло изменение: " + data)
+      if (data == "commit") {
+        System.err.println("Выполнение транзакции.")
+        zk.setData(workerPath, "committed".getBytes(), -1)
+      } else if (data == "abort") {
+        System.err.println("Прерывание транзакции.")
+        zk.setData(workerPath, "committed".getBytes(), -1)
+      }
+    }
   }
 
   def run(): Unit = {
-    val value = if (Random.nextDouble() > 0.5) "commit" else "abort"
-//    val value = "commit"
-    while (zk.exists(root, false) == null) {
-      TimeUnit.SECONDS.sleep(5)
+    while (true) {
+
     }
-    System.err.println(s"Node $id vote $value")
-    zk.create(
-      workerPath,
-      value.getBytes(),
-      ZooDefs.Ids.OPEN_ACL_UNSAFE,
-      CreateMode.EPHEMERAL
-    )
-    zk.getData(workerPath, this, null)
-    TimeUnit.SECONDS.sleep(5)
-    zk.delete(workerPath, -1)
-    zk.close()
   }
 }
